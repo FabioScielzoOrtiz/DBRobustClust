@@ -5,11 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="FastKmedoids",
-    version="0.0.6",
+    version="0.0.7",
     author="Fabio Scielzo Ortiz",
     author_email="fabioscielzo98@gmail.com",
-    description="This is a package for applying a fast version of the clustering Kmedoids algorithm, which is build on the Gower Generalized distances, already available in PyDistances package.",
-    long_description=long_description,
+    description="This is a package to implement a fast and powerful version of the Kmedoids clustering algorithm, which is built on the Generalised Gower distance, already available in the PyDistances package",    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/FabioScielzoOrtiz/FastKmedoids_Package",  # add your project URL here
     packages=find_packages(),
