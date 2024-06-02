@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: FastKmedoids
-Version: 0.0.7
+Version: 0.0.10
 Summary: This is a package to implement a fast and powerful version of the Kmedoids clustering algorithm, which is built on the Generalised Gower distance, already available in the PyDistances package
 Home-page: https://github.com/FabioScielzoOrtiz/FastKmedoids_Package
 Author: Fabio Scielzo Ortiz
@@ -14,9 +14,7 @@ License-File: LICENSE
 Requires-Dist: polars
 Requires-Dist: numpy
 
-This is a package to carry out Exploratory Data Analysis, allowing to work on Big Data.
-
-We are currently working to develop the package.
+PACKAGE UNDER CONSTRUCTION. 
 
 Usage:
 
