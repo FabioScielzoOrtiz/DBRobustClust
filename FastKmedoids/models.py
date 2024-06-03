@@ -35,7 +35,7 @@ def data_preprocessing(X, frac_sample_size, random_state):
     n_sample = int(frac_sample_size*n)
     index = np.arange(0,n)
     np.random.seed(random_state)
-    sample_index = np.random.choice(index, size=n_sample)
+    sample_index = np.random.choice(index, size=n_sample, replace=False)
     out_sample_index = np.array([x for x in index if x not in sample_index])
     X_sample = X[sample_index,:] 
     X_out_sample = X[out_sample_index,:] 
@@ -96,6 +96,7 @@ class FastGG :
         self.out_sample_index = out_sample_index
         self.X_sample = X_sample
         self.X_out_sample = X_out_sample
+        print(f'Distance matrix size: {self.D_GG.shape}')
 
 #####################################################################################################################
 
@@ -188,10 +189,7 @@ class FastKmedoidsGG :
         if isinstance(X, (pd.DataFrame, pl.DataFrame)):
             X = X.to_numpy()
         if isinstance(y, (pd.Series, pl.Series)):
-            y = y.to_numpy()
-
-        if self.verbose == True:
-            print(f'Distance matrix size: {int(np.ceil(self.frac_sample_size * len(X)))}')
+            y = y.to_numpy()           
         
         self.p1_init = self.p1 ; self.p2_init = self.p2 ; self.p3_init = self.p3  # p1, p2 and p3 when X doesn't contain y. These original p's are needed for the predict method, since what is predicted is X without y.
 
