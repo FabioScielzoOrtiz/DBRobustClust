@@ -28,6 +28,10 @@ def data_preprocessing(X, frac_sample_size, random_state):
     sample_index: the index of the sample observations/rows.
     out_sample_index: the index of the out of sample observations/rows.
     """
+
+    if not (0 < frac_sample_size < 1):
+       raise ValueError('frac_sample_size must be in (0,1).')
+
     if isinstance(X, (pd.DataFrame, pl.DataFrame)):
         X = X.to_numpy()
 
@@ -347,7 +351,7 @@ class KFoldFastKmedoidsGG :
             y_fold = y[idx_fold[j]] if y is not None else None
 
             fast_kmedoids = FastKmedoidsGG(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
-                                           frac_sample_size= self.frac_sample_size, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
+                                           frac_sample_size=self.frac_sample_size, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
                                            robust_maha_method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                            fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, y_type=self.y_type, verbose=self.verbose)
             fast_kmedoids.fit(X=X[idx_fold[j],:], y=y_fold, weights=fold_weights) 
@@ -363,7 +367,7 @@ class KFoldFastKmedoidsGG :
             print(f'X_medoids size: {X_medoids.shape}')
 
         fast_kmedoids = FastKmedoidsGG(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
-                                        frac_sample_size=1, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
+                                        frac_sample_size=0.80, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
                                         robust_maha_method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                         fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, verbose=self.verbose)
         fast_kmedoids.fit(X=X_medoids)     
