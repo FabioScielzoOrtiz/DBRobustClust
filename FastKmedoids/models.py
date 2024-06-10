@@ -329,6 +329,7 @@ class KFoldFastKmedoidsGG :
             y: a pandas/polars series or a numpy array. Represents a response variable. Is not required.
             weights: the sample weights, if exists.
         """
+        
         if isinstance(X, (pd.DataFrame, pl.DataFrame)):
             X = X.to_numpy()
         if isinstance(y, (pd.Series, pl.Series)):

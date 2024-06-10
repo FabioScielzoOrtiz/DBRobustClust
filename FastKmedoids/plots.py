@@ -7,9 +7,9 @@ import seaborn as sns
 
 #####################################################################################################################
 
-def clustering_MDS_plot_one_methods(X_mds, y_pred, y_true, title='', accuracy=None, time=None, figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
+def clustering_MDS_plot_one_method(X_mds, y_pred, y_true, title='', accuracy=None, time=None, figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
                         title_size=13, title_weight='bold', points_size=45, title_height=0.98, subtitles_size=12, subtitle_weight='bold',
-                        hspace=0.8, wspace=0.4, save=False, file_name=None):
+                        hspace=0.8, wspace=0.4, save=False, file_name=None, legend_size=9):
     """
     Computes and display the MDS plot for a considered clustering configuration, 
     differentiating the cluster labels and the real groups, if they are known.
@@ -59,8 +59,8 @@ def clustering_MDS_plot_one_methods(X_mds, y_pred, y_true, title='', accuracy=No
             axes[1].set_title(f'Predicted groups (Time:{np.round(time,1)} secs)', fontsize=subtitles_size, weight=subtitle_weight)
         else:
             axes[1].set_title(f'Predicted groups', fontsize=11)
-        axes[0].legend(title='Y', bbox_to_anchor=bbox_to_anchor, loc='upper right')
-        axes[1].legend(title='Cluster\nlabels',bbox_to_anchor=bbox_to_anchor, loc='upper right')
+        axes[0].legend(title='Y', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
+        axes[1].legend(title='Cluster\nlabels',bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
         plt.subplots_adjust(hspace=hspace, wspace=wspace) 
         plt.suptitle(title, fontsize=title_size, y=title_height, weight=title_weight, color='black')
 
@@ -68,8 +68,8 @@ def clustering_MDS_plot_one_methods(X_mds, y_pred, y_true, title='', accuracy=No
 
         fig, axes = plt.subplots(figsize=figsize)
         ax = sns.scatterplot(x='Z1', y='Z2', hue='cluster_labels', data=MDS_cluster_df, s=points_size, palette='bright')
-        ax.set_title('Predicted groups', fontsize=11)
-        ax.legend(title='Cluster\nlabels',bbox_to_anchor=bbox_to_anchor, loc='upper right')
+        ax.set_title(title, fontsize=title_size, y=title_height, weight=title_weight, color='black')
+        ax.legend(title='Cluster\nlabels', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
  
     if save == True:
         fig.savefig(file_name, format='jpg', dpi=500, bbox_inches="tight", pad_inches=0.2)
@@ -79,7 +79,7 @@ def clustering_MDS_plot_one_methods(X_mds, y_pred, y_true, title='', accuracy=No
 
 def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true, title='', accuracy=None, time=None, n_rows=2, figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
                         title_size=13, title_weight='bold', points_size=45, title_height=0.98, subtitles_size=12, subtitle_weight='bold',
-                        hspace=0.8, wspace=0.4, save=False, file_name=None):
+                        hspace=0.8, wspace=0.4, save=False, file_name=None, legend_size=9):
     """
     Computes and display the MDS plot for a considered clustering configuration, 
     differentiating the cluster labels and the real groups, if they are known.
@@ -126,7 +126,7 @@ def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true, title='', accura
     
     sns.scatterplot(x='Z1', y='Z2', hue='Y', data=MDS_true_df, ax=axes[0], s=points_size, palette='bright')
     axes[0].set_title('Real groups', fontsize=subtitles_size, weight=subtitle_weight)
-    axes[0].legend(title='Y', bbox_to_anchor=bbox_to_anchor, loc='upper right')
+    axes[0].legend(title='Y', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
 
     for i, method in enumerate(methods):
 
@@ -140,7 +140,7 @@ def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true, title='', accura
             axes[i+1].set_title(f'Predicted groups by {method}\n Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
         else:
             axes[i+1].set_title(f'Predicted groups by {method}\n ', fontsize=11)
-        axes[i+1].legend(title='Cluster\nlabels',bbox_to_anchor=bbox_to_anchor, loc='upper right')
+        axes[i+1].legend(title='Cluster\nlabels', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
 
     plt.subplots_adjust(hspace=hspace, wspace=wspace) 
     plt.suptitle(title, fontsize=title_size, y=title_height, weight=title_weight, color='black')
@@ -154,21 +154,21 @@ def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true, title='', accura
 
 def clustering_MDS_plot(X_mds, y_pred, y_true, title='', accuracy=None, time=None, figsize=(8, 5), n_rows=2, bbox_to_anchor=(1.2, 1), 
                         title_size=13, title_weight='bold', points_size=45, title_height=0.98, subtitles_size=12, subtitle_weight='bold',
-                        hspace=0.8, wspace=0.4, save=False, file_name=None):
+                        hspace=0.8, wspace=0.4, save=False, file_name=None, legend_size=9):
     
     if isinstance(y_pred, dict):
 
         clustering_MDS_plot_multiple_methods(X_mds=X_mds, y_pred=y_pred, y_true=y_true, title=title, accuracy=accuracy, time=time, n_rows=n_rows, figsize=figsize, 
                                              bbox_to_anchor=bbox_to_anchor, title_size=title_size, title_weight=title_weight, points_size=points_size, 
                                              title_height=title_height, subtitles_size=subtitles_size, subtitle_weight=subtitle_weight,
-                                             hspace=hspace, wspace=wspace, save=save, file_name=file_name)
+                                             hspace=hspace, wspace=wspace, save=save, file_name=file_name, legend_size=legend_size)
     
     else:
 
-        clustering_MDS_plot_one_methods(X_mds=X_mds, y_pred=y_pred, y_true=y_true, title=title, accuracy=accuracy, time=time, figsize=figsize, 
+        clustering_MDS_plot_one_method(X_mds=X_mds, y_pred=y_pred, y_true=y_true, title=title, accuracy=accuracy, time=time, figsize=figsize, 
                                         bbox_to_anchor=bbox_to_anchor, title_size=title_size, title_weight=title_weight, points_size=points_size, 
                                         title_height=title_height, subtitles_size=subtitles_size, subtitle_weight=subtitle_weight,
-                                        hspace=hspace, wspace=wspace, save=save, file_name=file_name)
+                                        hspace=hspace, wspace=wspace, save=save, file_name=file_name, legend_size=legend_size)
 
 #####################################################################################################################
 
@@ -200,24 +200,23 @@ def clustering_MDS_multiplot(X_mds, y_pred, n_cols, title='', figsize=(8, 5), bb
     -------
     The described plot.
     """    
-    
-    cases = X_mds.keys()
-    n_cases = len(cases)
+
+    X_mds_df = pl.DataFrame(X_mds)
+    X_mds_df.columns = ['Z1', 'Z2']
+    methods = y_pred.keys()
+    n_methods = len(methods)
     MDS_cluster_df = {}
 
-    for key in cases:
-
-        X_mds_df = pl.DataFrame(X_mds[key])
-        X_mds_df.columns = ['Z1', 'Z2']
+    for key in methods:
         labels_df = pl.DataFrame(y_pred[key])
         labels_df.columns = ['cluster_labels']
         MDS_cluster_df[key] = pl.concat((X_mds_df, labels_df), how='horizontal')
     
-    n_rows = int(np.ceil(n_cases/n_cols))
+    n_rows = int(np.ceil(n_methods/n_cols))
     fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
     axes = axes.flatten()  
 
-    for i, key in enumerate(cases):
+    for i, key in enumerate(methods):
 
         sns.scatterplot(x='Z1', y='Z2', hue='cluster_labels', data=MDS_cluster_df[key], 
                         s=points_size, palette='bright', ax=axes[i])
