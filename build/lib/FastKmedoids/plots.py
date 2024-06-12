@@ -183,23 +183,30 @@ def clustering_MDS_plot(X_mds, y_pred, y_true=None, title='', accuracy=None, tim
                         hspace=0.8, wspace=0.4, save=False, file_name=None, legend_size=9):
 
     """
-    Displays the MDS plot for a considered clustering configuration, 
+    Displays the MDS plot for one or several clustering configurations, 
     differentiating the cluster labels and the real groups, if they are known.
 
     Parameters (inputs)
     ----------
     X_mds: a numpy array with the MDS matrix for the distance matrix used in the considered clustering configuration.
-    y_pred: a numpy array with the predictions of the response.
-    y_true: a numpy array with the true values of the response.
-    title: the title of the plot.
-    accuracy: the accuracy of the clustering algorithm, if computed.
-    time: the execution time of the clustering algorithm, if computed.
+    y_pred: a numpy array with the predictions of the response for the single case or a dictionary with those arrays as items for the multiple case.
+    y_true: a numpy array with the true values of the response. Not required.
+    title: the title of the plot. 
+    accuracy: the accuracy of the clustering algorithm, if computed. Not required.
+    time: the execution time of the clustering algorithm, if computed. Not required.
     figsize: the size of the plot.
     bbox_to_anchor: the size of the legend box.
     title_fontsize: the size of the font of the title.
     title_weight: the weight of the title.
     points_size: the size of the points of the plot.
     title_height: the height of the tile of the plot.
+    subtitles_size: subtitles sizes, for the multiple case.
+    subtitle_weight: subtitle weight, for the multiple case.
+    hspace: height space between the subplots, for the multiple case.
+    wspace: width space between the subplots, for the multiple case.
+    legend_size: size of the legend.
+    save: whether the plot is saved or not.
+    file_name: file name if the plot is saved.
 
     Returns (outputs)
     -------
@@ -221,7 +228,7 @@ def clustering_MDS_plot(X_mds, y_pred, y_true=None, title='', accuracy=None, tim
                                         hspace=hspace, wspace=wspace, save=save, file_name=file_name, legend_size=legend_size)
 
 #####################################################################################################################
-
+'''
 def clustering_MDS_multiplot(X_mds, y_pred, n_cols, title='', figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
                         title_fontsize=13, subtitle_size=11, legend_size=9, title_weight='bold', points_size=45, title_height=0.98,
                         hspace=0.5, wspace=0.5):
@@ -277,3 +284,4 @@ def clustering_MDS_multiplot(X_mds, y_pred, n_cols, title='', figsize=(8, 5), bb
     plt.subplots_adjust(hspace=hspace, wspace=wspace) 
 
     plt.show() 
+    '''
