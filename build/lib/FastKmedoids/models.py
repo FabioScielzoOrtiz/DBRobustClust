@@ -277,7 +277,7 @@ def get_idx_obs(fold_key, medoid_key, idx_fold, labels_fold):
     # Idx of the observations of fold_key associated to the medoid_key of that fold
     return idx_fold[fold_key][np.where(labels_fold[fold_key] == medoid_key)[0]]
 
-class KFoldFastKmedoidsGGower :
+class FoldFastKmedoidsGGower :
     """
     Implements the K-Fold Fast-K-medoids algorithm based on the Generalized Gower distance.
     """
