@@ -7,7 +7,7 @@ from sklearn_extra.cluster import KMedoids
 from sklearn.model_selection import KFold
 
 sys.path.insert(0, r"C:\Users\fscielzo\Documents\Packages\PyDistances_Package_Private")
-from PyDistances.mixed import GG_dist_matrix, GG_dist
+from PyDistances.mixed import GGower_dist_matrix, GGower_dist
 
 #####################################################################################################################
 
@@ -48,7 +48,7 @@ def data_preprocessing(X, frac_sample_size, random_state):
 
 #####################################################################################################################
 
-class FastGG :
+class FastGGower :
     """
     Calculates the the Generalized Gower matrix of a sample of a given data matrix.
     """
@@ -90,17 +90,17 @@ class FastGG :
         X_sample, X_out_sample, sample_index, out_sample_index = data_preprocessing(X=X, frac_sample_size=self.frac_sample_size, random_state=self.random_state)
         sample_weights = self.weights[sample_index] if self.weights is not None else None
 
-        GG_matrix = GG_dist_matrix(p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+        GGower_matrix = GGower_dist_matrix(p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                                    method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                    fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, 
                                    weights=sample_weights)
         
-        self.D_GG = GG_matrix.compute(X=X_sample)
+        self.D_GGower = GGower_matrix.compute(X=X_sample)
         self.sample_index = sample_index
         self.out_sample_index = out_sample_index
         self.X_sample = X_sample
         self.X_out_sample = X_out_sample
-        print(f'Distance matrix size: {self.D_GG.shape}')
+        print(f'Distance matrix size: {self.D_GGower.shape}')
 
 #####################################################################################################################
 
@@ -141,7 +141,7 @@ def concat_X_y(X, y, y_type, p1, p2, p3):
 
 #####################################################################################################################
         
-class FastKmedoidsGG :
+class FastKmedoidsGGower :
     """
     Implements the Fast-K-medoids algorithm based on the Generalized Gower distance.
     """
@@ -200,12 +200,12 @@ class FastKmedoidsGG :
         if y is not None: 
             X, self.p1, self.p2, self.p3, self.y_idx = concat_X_y(X=X, y=y, y_type=self.y_type, p1=self.p1, p2=self.p2, p3=self.p3)
 
-        fastGG = FastGG(frac_sample_size=self.frac_sample_size, random_state=self.random_state, p1=self.p1, p2=self.p2, p3=self.p3, 
+        fastGG = FastGGower(frac_sample_size=self.frac_sample_size, random_state=self.random_state, p1=self.p1, p2=self.p2, p3=self.p3, 
                         d1=self.d1, d2=self.d2, d3=self.d3, robust_maha_method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, 
                         n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, q=self.q,
                         weights=weights)
         fastGG.compute(X)
-        self.D_GG = fastGG.D_GG
+        self.D_GG = fastGG.D_GGower
         self.X_sample = fastGG.X_sample
         self.X_out_sample = fastGG.X_out_sample
         self.sample_index = fastGG.sample_index
@@ -221,7 +221,7 @@ class FastKmedoidsGG :
             self.medoids[j] = self.X_sample[idx,:] 
 
         sample_weights = weights[self.sample_index] if weights is not None else None
-        self.distGG = GG_dist(p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+        self.distGG = GGower_dist(p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                               method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                               VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state, 
                               weights=sample_weights) 
@@ -259,7 +259,7 @@ class FastKmedoidsGG :
             for j in range(self.n_clusters):
                 self.medoids[j] = np.delete(self.medoids[j], self.y_idx)
 
-            distGG = GG_dist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+            distGG = GGower_dist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                              method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                              VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state) 
             distGG.fit(self.X) # self.X is X used during fit, typically X_train or concat_X_y(X_train,y_train) if y is not None.
@@ -277,7 +277,7 @@ def get_idx_obs(fold_key, medoid_key, idx_fold, labels_fold):
     # Idx of the observations of fold_key associated to the medoid_key of that fold
     return idx_fold[fold_key][np.where(labels_fold[fold_key] == medoid_key)[0]]
 
-class KFoldFastKmedoidsGG :
+class FoldFastKmedoidsGGower :
     """
     Implements the K-Fold Fast-K-medoids algorithm based on the Generalized Gower distance.
     """
@@ -351,7 +351,7 @@ class KFoldFastKmedoidsGG :
             fold_weights = weights[idx_fold[j]] if weights is not None else None
             y_fold = y[idx_fold[j]] if y is not None else None
 
-            fast_kmedoids = FastKmedoidsGG(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
+            fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
                                            frac_sample_size=self.frac_sample_size, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
                                            robust_maha_method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                            fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, y_type=self.y_type, verbose=self.verbose)
@@ -367,7 +367,7 @@ class KFoldFastKmedoidsGG :
         if self.verbose == True:
             print(f'X_medoids size: {X_medoids.shape}')
 
-        fast_kmedoids = FastKmedoidsGG(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
+        fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
                                         frac_sample_size=0.80, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
                                         robust_maha_method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                         fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, verbose=self.verbose)
@@ -399,7 +399,7 @@ class KFoldFastKmedoidsGG :
             for j in range(self.n_clusters):
                 self.medoids[j] = np.delete(self.medoids[j], self.y_idx)
 
-            distGG = GG_dist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+            distGG = GGower_dist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                              method=self.robust_maha_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                              VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state) 
             distGG.fit(self.X) # self.X is X used during fit, typically X_train

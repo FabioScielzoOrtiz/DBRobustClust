@@ -8,7 +8,7 @@ from sklearn.compose import ColumnTransformer
 
 #####################################################################################################################
 
-def outlier_contamination(X, col, below=True, above=True, prop_below=0.05, prop_above=0.05, dil=2, random_state=123) :
+def outlier_contamination(X, col_name, prop_below=0.05, prop_above=None, sigma=2, random_state=123) :
     """
     Contaminates with outliers a data matrix.
 
@@ -16,11 +16,9 @@ def outlier_contamination(X, col, below=True, above=True, prop_below=0.05, prop_
     ----------
     X: a pandas/polars series. It represents a statistical variable.
     col: the name of a column of `X`.
-    below: whether the contamination is done in the below part of `X` or not. Must be in [True, False].
-    above: whether the contamination is done in the above part of `X` or not. Must be in [True, False].
     prop_below: proportion of outliers generated in the below part of `X`. Only used if below = True.
     prop_above: proportion of outliers generated in the above part of `X`. Only used if above = True.
-    dil: parameter that controls the upper bound of the generated above outliers and the lower bound of the lower outliers.
+    sigma: parameter that controls the upper bound of the generated above outliers and the lower bound of the lower outliers.
     random_state: controls the random seed of the random elements.
 
     Returns (outputs)
@@ -29,28 +27,47 @@ def outlier_contamination(X, col, below=True, above=True, prop_below=0.05, prop_
     """
 
     X_new = X.copy()
-    Q25 = X_new[col].quantile(0.25)
-    Q75 = X_new[col].quantile(0.75)
+    Q25 = X_new[col_name].quantile(0.25)
+    Q75 = X_new[col_name].quantile(0.75)
     IQR = Q75 - Q25
     lower_bound = Q25 - 1.5*IQR
     upper_bound = Q75 + 1.5*IQR
     np.random.seed(random_state)
 
-    if below == True :
+    if prop_below is not None:
 
         n_outliers_below = int(len(X_new)*prop_below)
-        outlier_indices_below = np.random.choice(len(X_new), size=n_outliers_below, replace=False)
-        outliers_below = np.random.uniform(lower_bound - dil*np.abs(lower_bound), lower_bound, size=n_outliers_below)
-        X_new.loc[outlier_indices_below, col] = outliers_below
+        outlier_idx_below = np.random.choice(len(X_new), size=n_outliers_below, replace=False)
+        outliers_below = np.random.uniform(lower_bound - sigma*np.abs(lower_bound), lower_bound, size=n_outliers_below)
+        X_new.loc[outlier_idx_below, col_name] = outliers_below
+        return X_new, outlier_idx_below
+        
 
-    elif above == True : 
+    elif prop_above is not None: 
 
         n_outliers_above = int(len(X_new)*prop_above)
-        outlier_indices_above = np.random.choice(len(X_new), size=n_outliers_above, replace=False)
-        outliers_above = np.random.uniform(upper_bound, upper_bound + dil*np.abs(upper_bound), size=n_outliers_above)
-        X_new.loc[outlier_indices_above, col] = outliers_above
+        outlier_idx_above = np.random.choice(len(X_new), size=n_outliers_above, replace=False)
+        outliers_above = np.random.uniform(upper_bound, upper_bound + sigma*np.abs(upper_bound), size=n_outliers_above)
+        X_new.loc[outlier_idx_above, col_name] = outliers_above
+        return X_new, outlier_idx_above
+    
+    elif prop_below is not None and prop_above is not None:
 
-    return X_new
+        n_outliers_below = int(len(X_new)*prop_below)
+        outlier_idx_below = np.random.choice(len(X_new), size=n_outliers_below, replace=False)
+        outliers_below = np.random.uniform(lower_bound - sigma*np.abs(lower_bound), lower_bound, size=n_outliers_below)
+        X_new.loc[outlier_idx_below, col_name] = outliers_below
+
+        n_outliers_above = int(len(X_new)*prop_above)
+        outlier_idx_above = np.random.choice(len(X_new), size=n_outliers_above, replace=False)
+        outliers_above = np.random.uniform(upper_bound, upper_bound + sigma*np.abs(upper_bound), size=n_outliers_above)
+        X_new.loc[outlier_idx_above, col_name] = outliers_above
+
+        return X_new, outlier_idx_below, outlier_idx_above
+
+    else:
+        print('prop_below and prop_above cannot be both None.')
+
 
 #####################################################################################################################
 
