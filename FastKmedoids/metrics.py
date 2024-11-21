@@ -26,7 +26,7 @@ def adjusted_accuracy(y_pred, y_true):
         accuracy.append(np.mean(permuted_cluster_labels[per] == y_true))
     accuracy = np.array(accuracy)
     best_permutation = permutations_list[np.argmax(accuracy)]
-    best_cluster_labels = permuted_cluster_labels[best_permutation]
-    best_accuracy = np.max(accuracy)
+    adj_cluster_labels = permuted_cluster_labels[best_permutation]
+    adj_accuracy = np.max(accuracy)
   
-    return best_accuracy, best_cluster_labels
+    return adj_accuracy, adj_cluster_labels

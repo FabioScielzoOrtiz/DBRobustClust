@@ -77,12 +77,10 @@ def clustering_MDS_plot_one_method(X_mds, y_pred, y_true, title='', accuracy=Non
 
 #####################################################################################################################
 
-
-#####################################################################################################################
-
-def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true=None, outliers_bool=None, title='', accuracy=None, time=None, n_rows=2, figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
-                        title_size=13, title_weight='bold', points_size=45, title_height=0.98, subtitles_size=12, subtitle_weight='bold',
-                        hspace=0.8, wspace=0.4, save=False, file_name=None, format='jpg', dpi=250, legend_size=9):
+def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true=None, outliers_bool=None, title='', accuracy=None, time=None, n_rows=2, 
+                                         figsize=(8, 5), bbox_to_anchor=(1.2, 1), title_size=13, title_weight='bold', points_size=45, 
+                                         title_height=0.98, subtitles_size=12, subtitle_weight='bold', hspace=0.8, wspace=0.4, 
+                                         save=False, file_name=None, format='jpg', dpi=250, legend_size=9):
     """
     Computes and display the MDS plot for a considered clustering configuration, 
     differentiating the cluster labels and the real groups, if they are known.

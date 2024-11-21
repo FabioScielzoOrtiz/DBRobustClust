@@ -1,8 +1,6 @@
 import numpy as np
-import sys
 import polars as pl
-sys.path.insert(0, r'C:\Users\fscielzo\Documents\Packages\PyMachineLearning_Package_Private')
-from PyMachineLearning.preprocessing import encoder, imputer
+from PyMachineLearning.preprocessing import Encoder, Imputer
 from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 
@@ -71,7 +69,7 @@ def outlier_contamination(X, col_name, prop_below=0.05, prop_above=None, sigma=2
 
 #####################################################################################################################
 
-def sort_predictors_for_GG(df, quant_predictors, cat_predictors):
+def sort_predictors_for_GGower(df, quant_predictors, cat_predictors):
     """
     Given a data-frame th function return the names of its categorical variables sorted according to (binary, multi-class) 
     and the number of quantitative, binary and multi-class variables.
@@ -90,12 +88,12 @@ def sort_predictors_for_GG(df, quant_predictors, cat_predictors):
 
     # Defining the transformers pipeline to impute and codify the predictors that need it.
     quant_pipeline = Pipeline([
-    ('imputer', imputer(method='simple_mean'))
+    ('imputer', Imputer(method='simple_mean'))
     ])
 
     cat_pipeline = Pipeline([
-        ('encoder', encoder(method='ordinal')), # encoding the categorical variables is needed by some imputers
-        ('imputer', imputer(method='simple_most_frequent'))
+        ('encoder', Encoder(method='ordinal')), # encoding the categorical variables is needed by some imputers
+        ('imputer', Imputer(method='simple_most_frequent'))
         ])
 
     quant_cat_transformer = ColumnTransformer(transformers=[('quant', quant_pipeline, quant_predictors),

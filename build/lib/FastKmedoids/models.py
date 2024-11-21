@@ -159,7 +159,7 @@ class FastKmedoidsGGower :
     def __init__(self, n_clusters, method='pam', init='heuristic', max_iter=100, random_state=123,
                  frac_sample_size=0.1, p1=None, p2=None, p3=None, d1='robust_mahalanobis', d2='jaccard', d3='matching', 
                  robust_method='trimmed', alpha=0.05, epsilon=0.05, n_iters=20, q=1,
-                 fast_VG=False, VG_sample_size=1000, VG_n_samples=5, y_type=None, verbose=True) :
+                 fast_VG=False, VG_sample_size=1000, VG_n_samples=5, y_type=None) :
         """
         Constructor method.
         
@@ -183,12 +183,11 @@ class FastKmedoidsGGower :
             VG_n_samples: number of samples to be used to make the estimation of the geometric variability.
             random_state: the random seed used for the (random) sample elements.
             y_type: the type of response variable. Must be in ['quantitative', 'binary', 'multiclass'].
-            verbose: a boolean that controls whether certain info messages are printed or not.
         """        
         self.n_clusters = n_clusters; self.method = method; self.init = init; self.max_iter = max_iter; self.random_state = random_state
         self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; 
         self.robust_method = robust_method; self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters; self.fast_VG = fast_VG; 
-        self.VG_sample_size = VG_sample_size; self.VG_n_samples = VG_n_samples; self.q = q ; self.y_type = y_type; self.verbose = verbose
+        self.VG_sample_size = VG_sample_size; self.VG_n_samples = VG_n_samples; self.q = q ; self.y_type = y_type
         self.kmedoids = KMedoids(n_clusters=n_clusters, metric='precomputed', method=method, init=init, max_iter=max_iter, random_state=random_state)
 
     def fit(self, X, y=None, weights=None):
@@ -294,9 +293,8 @@ class FoldFastKmedoidsGGower :
 
     def __init__(self, n_clusters, method='pam', init='heuristic', max_iter=100, random_state=123,
                  frac_sample_size=0.1, p1=None, p2=None, p3=None, d1='robust_mahalanobis', d2='jaccard', d3='matching', 
-                 robust_method='trimmed', alpha=0.05, epsilon=0.05, n_iters=20, q=1,
-                 fast_VG=False, VG_sample_size=1000, VG_n_samples=5, n_splits=5, shuffle=True, kfold_random_state=123,
-                 y_type=None, verbose=True) :
+                 robust_method='trimmed', alpha=0.05, epsilon=0.05, n_iters=20, q=1, fast_VG=False, 
+                 VG_sample_size=1000, VG_n_samples=5, n_splits=5, shuffle=True, kfold_random_state=123, y_type=None) :
         """
         Constructor method.
         
@@ -323,13 +321,12 @@ class FoldFastKmedoidsGGower :
             n_splits: number of folds to be used.
             shuffle: whether data is shuffled before applying KFold or not, must be in [True, False]. 
             kfold_random_state: the random seed for KFold if shuffle = True.
-            verbose: a boolean that controls whether certain info messages are printed or not.
         """          
         self.n_clusters = n_clusters; self.method = method; self.init = init; self.max_iter = max_iter; self.random_state = random_state
         self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; 
         self.robust_method = robust_method ; self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters; self.fast_VG = fast_VG; 
         self.VG_sample_size = VG_sample_size;  self.VG_n_samples = VG_n_samples; self.q = q; self.n_splits = n_splits; self.shuffle = shuffle; 
-        self.kfold_random_state = kfold_random_state; self.y_type = y_type ; self.verbose = verbose
+        self.kfold_random_state = kfold_random_state; self.y_type = y_type
 
     def fit(self, X, y=None, weights=None):
         """
@@ -353,11 +350,7 @@ class FoldFastKmedoidsGGower :
             idx_fold[j] = test_index
 
         medoids_fold, labels_fold = {}, {}
-        #for j in range(0, self.n_splits):
-        for j in tqdm(range(0, self.n_splits), desc="Processing Folds"):
-
-            if self.verbose == True:
-                print(f'Clustering Fold {j}')
+        for j in tqdm(range(0, self.n_splits), desc="Clustering Folds"):
 
             fold_weights = weights[idx_fold[j]] if weights is not None else None
             y_fold = y[idx_fold[j]] if y is not None else None
@@ -367,7 +360,7 @@ class FoldFastKmedoidsGGower :
                                                p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
                                                robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, 
                                                n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, 
-                                               VG_n_samples=self.VG_n_samples, y_type=self.y_type, verbose=self.verbose)
+                                               VG_n_samples=self.VG_n_samples, y_type=self.y_type)
            
             fast_kmedoids.fit(X=X[idx_fold[j],:], y=y_fold, weights=fold_weights) 
            
@@ -383,8 +376,8 @@ class FoldFastKmedoidsGGower :
         fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, 
                                            random_state=self.random_state, frac_sample_size=0.80, p1=self.p1, p2=self.p2, p3=self.p3,
                                            d1=self.d1, d2=self.d2, d3=self.d3, robust_method=self.robust_method, alpha=self.alpha, 
-                                           epsilon=self.epsilon, n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, 
-                                           VG_n_samples=self.VG_n_samples, verbose=self.verbose)
+                                           epsilon=self.epsilon, n_iters=self.n_iters, fast_VG=self.fast_VG, 
+                                           VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples)
        
         fast_kmedoids.fit(X=X_medoids)     
 
