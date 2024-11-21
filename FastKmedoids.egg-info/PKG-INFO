@@ -1,8 +1,8 @@
 Metadata-Version: 2.1
 Name: FastKmedoids
-Version: 0.0.30
+Version: 0.0.33
 Summary: FastKmedoids is a Python package to apply the clustering algorithms Fast Kmedoids and KFold Fast Kmedoids.
-Home-page: https://github.com/FabioScielzoOrtiz/FastKmedoids_Package
+Home-page: https://github.com/FabioScielzoOrtiz/FastKmedoids-package
 Author: Fabio Scielzo Ortiz
 Author-email: fabioscielzo98@gmail.com
 Classifier: Programming Language :: Python :: 3
