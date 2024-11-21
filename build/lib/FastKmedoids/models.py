@@ -2,10 +2,10 @@
 import polars as pl
 import pandas as pd
 import numpy as np
-import sys
 from sklearn_extra.cluster import KMedoids
 from sklearn.model_selection import KFold
 from PyDistances.mixed import GGowerDistMatrix, GGowerDist
+from tqdm import tqdm
 
 #####################################################################################################################
 
@@ -46,62 +46,6 @@ def data_preprocessing(X, frac_sample_size, random_state):
 
 #####################################################################################################################
 
-class FastGGower :
-    """
-    Calculates the the Generalized Gower matrix of a sample of a given data matrix.
-    """
-
-    def __init__(self, frac_sample_size=0.1, random_state=123, p1=None, p2=None, p3=None, d1='robust_mahalanobis', d2='jaccard', d3='matching', 
-                 robust_method='trimmed', alpha=0.05, epsilon=0.05, n_iters=20, q=1, fast_VG=False, VG_sample_size=1000, VG_n_samples=5, weights=None) :
-        """
-        Constructor method.
-        
-        Parameters:
-            frac_sample_size: the sample size in proportional terms.
-            p1, p2, p3: number of quantitative, binary and multi-class variables in the considered data matrix, respectively. Must be a non negative integer.
-            d1: name of the distance to be computed for quantitative variables. Must be an string in ['euclidean', 'minkowski', 'canberra', 'mahalanobis', 'robust_mahalanobis']. 
-            d2: name of the distance to be computed for binary variables. Must be an string in ['sokal', 'jaccard'].
-            d3: name of the distance to be computed for multi-class variables. Must be an string in ['matching'].
-            q: the parameter that defines the Minkowski distance. Must be a positive integer.
-            robust_method: the method to be used for computing the robust covariance matrix. Only needed when d1 = 'robust_mahalanobis'.
-            alpha : a real number in [0,1] that is used if `method` is 'trimmed' or 'winsorized'. Only needed when d1 = 'robust_mahalanobis'.
-            epsilon: parameter used by the Delvin algorithm that is used when computing the robust covariance matrix. Only needed when d1 = 'robust_mahalanobis'.
-            n_iters: maximum number of iterations used by the Delvin algorithm. Only needed when d1 = 'robust_mahalanobis'.
-            fast_VG: whether the geometric variability estimation will be full (False) or fast (True).
-            VG_sample_size: sample size to be used to make the estimation of the geometric variability.
-            VG_n_samples: number of samples to be used to make the estimation of the geometric variability.
-            random_state: the random seed used for the (random) sample elements.
-            weights: the sample weights.
-        """
-        self.random_state = random_state; self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; 
-        self.robust_method = robust_method; self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters
-        self.fast_VG = fast_VG; self.VG_sample_size = VG_sample_size; self.VG_n_samples = VG_n_samples; self.q = q; self.weights = weights
-
-    def compute(self, X):
-        """
-        Compute method: computes the Generalized Gower function for the defined sample of data.
-        
-        Parameters:
-            X: a pandas/polars data-frame or a numpy array. Represents a data matrix.
-        """
-
-        X_sample, X_out_sample, sample_index, out_sample_index = data_preprocessing(X=X, frac_sample_size=self.frac_sample_size, random_state=self.random_state)
-        sample_weights = self.weights[sample_index] if self.weights is not None else None
-
-        GGower_matrix = GGowerDistMatrix(p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
-                                         robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
-                                         fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, 
-                                         weights=sample_weights)
-        
-        self.D_GGower = GGower_matrix.compute(X=X_sample)
-        self.sample_index = sample_index
-        self.out_sample_index = out_sample_index
-        self.X_sample = X_sample
-        self.X_out_sample = X_out_sample
-        print(f'Distance matrix size: {self.D_GGower.shape}')
-
-#####################################################################################################################
-
 def concat_X_y(X, y, y_type, p1, p2, p3):
     """
     Concatenating `X`and `y` in a suitable way to be used by the class `FastKmedoidsGG` to be applied in 'supervised' clustering.
@@ -136,6 +80,74 @@ def concat_X_y(X, y, y_type, p1, p2, p3):
         raise ValueError("Invalid `y` type")
     
     return X_y, p1, p2, p3, y_idx
+
+#####################################################################################################################
+    
+def get_idx_obs(fold_key, medoid_key, idx_fold, labels_fold):
+    # Idx of the observations of fold_key associated to the medoid_key of that fold
+    return idx_fold[fold_key][np.where(labels_fold[fold_key] == medoid_key)[0]]
+
+#####################################################################################################################
+
+class FastGGowerDistMatrix :
+    """
+    Calculates the the Generalized Gower matrix of a sample of a given data matrix.
+    """
+
+    def __init__(self, frac_sample_size=0.1, random_state=123, p1=None, p2=None, p3=None, 
+                 d1='robust_mahalanobis', d2='jaccard', d3='matching', 
+                 robust_method='trimmed', alpha=0.05, epsilon=0.05, n_iters=20, q=1, 
+                 fast_VG=False, VG_sample_size=1000, VG_n_samples=5, weights=None) :
+        """
+        Constructor method.
+        
+        Parameters:
+            frac_sample_size: the sample size in proportional terms.
+            p1, p2, p3: number of quantitative, binary and multi-class variables in the considered data matrix, respectively. Must be a non negative integer.
+            d1: name of the distance to be computed for quantitative variables. Must be an string in ['euclidean', 'minkowski', 'canberra', 'mahalanobis', 'robust_mahalanobis']. 
+            d2: name of the distance to be computed for binary variables. Must be an string in ['sokal', 'jaccard'].
+            d3: name of the distance to be computed for multi-class variables. Must be an string in ['matching'].
+            q: the parameter that defines the Minkowski distance. Must be a positive integer.
+            robust_method: the method to be used for computing the robust covariance matrix. Only needed when d1 = 'robust_mahalanobis'.
+            alpha : a real number in [0,1] that is used if `method` is 'trimmed' or 'winsorized'. Only needed when d1 = 'robust_mahalanobis'.
+            epsilon: parameter used by the Delvin algorithm that is used when computing the robust covariance matrix. Only needed when d1 = 'robust_mahalanobis'.
+            n_iters: maximum number of iterations used by the Delvin algorithm. Only needed when d1 = 'robust_mahalanobis'.
+            fast_VG: whether the geometric variability estimation will be full (False) or fast (True).
+            VG_sample_size: sample size to be used to make the estimation of the geometric variability.
+            VG_n_samples: number of samples to be used to make the estimation of the geometric variability.
+            random_state: the random seed used for the (random) sample elements.
+            weights: the sample weights.
+        """
+        self.random_state = random_state; self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; 
+        self.d1 = d1; self.d2 = d2; self.d3 = d3; self.robust_method = robust_method; self.alpha = alpha; self.epsilon = epsilon; 
+        self.n_iters = n_iters; self.fast_VG = fast_VG; self.VG_sample_size = VG_sample_size; self.VG_n_samples = VG_n_samples; 
+        self.q = q; self.weights = weights
+
+    def compute(self, X):
+        """
+        Compute method: computes the Generalized Gower function for the defined sample of data.
+        
+        Parameters:
+            X: a pandas/polars data-frame or a numpy array. Represents a data matrix.
+        """
+
+        X_sample, X_out_sample, sample_index, out_sample_index = data_preprocessing(X=X, frac_sample_size=self.frac_sample_size, 
+                                                                                    random_state=self.random_state)
+       
+        sample_weights = self.weights[sample_index] if self.weights is not None else None
+
+        GGower_matrix = GGowerDistMatrix(p1=self.p1, p2=self.p2, p3=self.p3, 
+                                         d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+                                         robust_method=self.robust_method, alpha=self.alpha, 
+                                         epsilon=self.epsilon, n_iters=self.n_iters,
+                                         fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, 
+                                         VG_n_samples=self.VG_n_samples, weights=sample_weights)
+        
+        self.D_GGower = GGower_matrix.compute(X=X_sample)
+        self.sample_index = sample_index
+        self.out_sample_index = out_sample_index
+        self.X_sample = X_sample
+        self.X_out_sample = X_out_sample
 
 #####################################################################################################################
         
@@ -174,9 +186,9 @@ class FastKmedoidsGGower :
             verbose: a boolean that controls whether certain info messages are printed or not.
         """        
         self.n_clusters = n_clusters; self.method = method; self.init = init; self.max_iter = max_iter; self.random_state = random_state
-        self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; self.robust_method = robust_method
-        self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters; self.fast_VG = fast_VG; self.VG_sample_size = VG_sample_size; self.VG_n_samples = VG_n_samples; self.q = q ;
-        self.y_type = y_type; self.verbose = verbose
+        self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; 
+        self.robust_method = robust_method; self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters; self.fast_VG = fast_VG; 
+        self.VG_sample_size = VG_sample_size; self.VG_n_samples = VG_n_samples; self.q = q ; self.y_type = y_type; self.verbose = verbose
         self.kmedoids = KMedoids(n_clusters=n_clusters, metric='precomputed', method=method, init=init, max_iter=max_iter, random_state=random_state)
 
     def fit(self, X, y=None, weights=None):
@@ -198,11 +210,13 @@ class FastKmedoidsGGower :
         if y is not None: 
             X, self.p1, self.p2, self.p3, self.y_idx = concat_X_y(X=X, y=y, y_type=self.y_type, p1=self.p1, p2=self.p2, p3=self.p3)
 
-        fastGG = FastGGower(frac_sample_size=self.frac_sample_size, random_state=self.random_state, p1=self.p1, p2=self.p2, p3=self.p3, 
-                        d1=self.d1, d2=self.d2, d3=self.d3, robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, 
-                        n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, q=self.q,
-                        weights=weights)
+        fastGG = FastGGowerDistMatrix(frac_sample_size=self.frac_sample_size, random_state=self.random_state, p1=self.p1, p2=self.p2, p3=self.p3, 
+                                      d1=self.d1, d2=self.d2, d3=self.d3, robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, 
+                                      n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, 
+                                      q=self.q, weights=weights)
+        
         fastGG.compute(X)
+
         self.D_GG = fastGG.D_GGower
         self.X_sample = fastGG.X_sample
         self.X_out_sample = fastGG.X_out_sample
@@ -219,10 +233,12 @@ class FastKmedoidsGGower :
             self.medoids[j] = self.X_sample[idx,:] 
 
         sample_weights = weights[self.sample_index] if weights is not None else None
+
         self.distGG = GGowerDist(p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
-                                 robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
-                                 VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state, 
-                                 weights=sample_weights) 
+                                 robust_method=self.robust_method, alpha=self.alpha,  epsilon=self.epsilon, 
+                                 n_iters=self.n_iters, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, 
+                                 random_state=self.random_state, weights=sample_weights) 
+     
         if sample_weights is None:
             self.distGG.fit(X)
         else: # if there are weights we cannot use X when it is too large in n (number of rows), since Xw is n x n, therefore it cannot be computed in that case due to computational problems. To avoid this potential problem instead of using X to fit GG_dist we use the very reduce sample X_sample.
@@ -233,9 +249,8 @@ class FastKmedoidsGGower :
         for i, idx in enumerate(self.out_sample_index) :
             for j in range(0, self.n_clusters) :
                 dist_out_sample_medoids[idx].append(self.distGG.compute(xi=self.X_out_sample[i,:], xr=self.medoids[j])) 
-        def get_out_sample_cluster_label(idx):
-            return np.argmin(dist_out_sample_medoids[idx])       
-        out_sample_labels_dict = {idx : get_out_sample_cluster_label(idx) for idx in self.out_sample_index} # keys: observation indices. Values: cluster labels. Contains only the out of sample observation indices
+       
+        out_sample_labels_dict = {idx : np.argmin(dist_out_sample_medoids[idx]) for idx in self.out_sample_index} # keys: observation indices. Values: cluster labels. Contains only the out of sample observation indices
         self.out_sample_labels = np.array(list(out_sample_labels_dict.values()))
         sample_labels_dict.update(out_sample_labels_dict)  # Now sample_label_dict contains the labels for each observation index, but without order.
         labels_dict = {idx : sample_labels_dict[idx] for idx in range(0,len(X))}  # keys: observation indices. Values: cluster labels. Contains all the observation indices
@@ -260,6 +275,7 @@ class FastKmedoidsGGower :
             distGG = GGowerDist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                                 robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                 VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state) 
+            
             distGG.fit(self.X) # self.X is X used during fit, typically X_train or concat_X_y(X_train,y_train) if y is not None.
 
         predicted_clusters = []
@@ -270,10 +286,6 @@ class FastKmedoidsGGower :
         return predicted_clusters
 
 #####################################################################################################################
-        
-def get_idx_obs(fold_key, medoid_key, idx_fold, labels_fold):
-    # Idx of the observations of fold_key associated to the medoid_key of that fold
-    return idx_fold[fold_key][np.where(labels_fold[fold_key] == medoid_key)[0]]
 
 class FoldFastKmedoidsGGower :
     """
@@ -314,9 +326,10 @@ class FoldFastKmedoidsGGower :
             verbose: a boolean that controls whether certain info messages are printed or not.
         """          
         self.n_clusters = n_clusters; self.method = method; self.init = init; self.max_iter = max_iter; self.random_state = random_state
-        self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; self.robust_method = robust_method
-        self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters; self.fast_VG = fast_VG; self.VG_sample_size = VG_sample_size;  self.verbose = verbose;
-        self.VG_n_samples = VG_n_samples; self.q = q; self.n_splits = n_splits; self.shuffle = shuffle; self.kfold_random_state = kfold_random_state; self.y_type = y_type
+        self.frac_sample_size = frac_sample_size; self.p1 = p1; self.p2 = p2; self.p3 = p3; self.d1 = d1; self.d2 = d2; self.d3 = d3; 
+        self.robust_method = robust_method ; self.alpha = alpha; self.epsilon = epsilon; self.n_iters = n_iters; self.fast_VG = fast_VG; 
+        self.VG_sample_size = VG_sample_size;  self.VG_n_samples = VG_n_samples; self.q = q; self.n_splits = n_splits; self.shuffle = shuffle; 
+        self.kfold_random_state = kfold_random_state; self.y_type = y_type ; self.verbose = verbose
 
     def fit(self, X, y=None, weights=None):
         """
@@ -334,26 +347,30 @@ class FoldFastKmedoidsGGower :
             y = y.to_numpy()
 
         kfold = KFold(n_splits=self.n_splits, shuffle=self.shuffle, random_state=self.kfold_random_state)
+
         idx_fold = {}
         for j, (train_index, test_index) in enumerate(kfold.split(X)):
             idx_fold[j] = test_index
-        fold_size = len(idx_fold[j])
-        print(f'Num.Folds: {self.n_splits}. Fold size: {fold_size}.')
-        print(f'Distance matrix size: {int(np.ceil(self.frac_sample_size * fold_size))} ({self.frac_sample_size}*{fold_size}) ')
 
         medoids_fold, labels_fold = {}, {}
-        for j in range(0, self.n_splits):
+        #for j in range(0, self.n_splits):
+        for j in tqdm(range(0, self.n_splits), desc="Processing Folds"):
+
             if self.verbose == True:
                 print(f'Clustering Fold {j}')
 
             fold_weights = weights[idx_fold[j]] if weights is not None else None
             y_fold = y[idx_fold[j]] if y is not None else None
 
-            fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
-                                           frac_sample_size=self.frac_sample_size, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
-                                           robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
-                                           fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, y_type=self.y_type, verbose=self.verbose)
+            fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, 
+                                               random_state=self.random_state, frac_sample_size=self.frac_sample_size, 
+                                               p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
+                                               robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, 
+                                               n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, 
+                                               VG_n_samples=self.VG_n_samples, y_type=self.y_type, verbose=self.verbose)
+           
             fast_kmedoids.fit(X=X[idx_fold[j],:], y=y_fold, weights=fold_weights) 
+           
             medoids_fold[j] = fast_kmedoids.medoids
             labels_fold[j] = fast_kmedoids.labels
 
@@ -362,13 +379,13 @@ class FoldFastKmedoidsGGower :
             self.p1_init = fast_kmedoids.p1_init; self.p2_init = fast_kmedoids.p2_init; self.p3_init = fast_kmedoids.p3_init            
 
         X_medoids = np.row_stack([np.array(list(medoids_fold[fold_key].values())) for fold_key in range(0, self.n_splits)])
-        if self.verbose == True:
-            print(f'X_medoids size: {X_medoids.shape}')
 
-        fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, random_state=self.random_state,
-                                        frac_sample_size=0.80, p1=self.p1, p2=self.p2, p3=self.p3, d1=self.d1, d2=self.d2, d3=self.d3, 
-                                        robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
-                                        fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, verbose=self.verbose)
+        fast_kmedoids = FastKmedoidsGGower(n_clusters=self.n_clusters, method=self.method, init=self.init, max_iter=self.max_iter, 
+                                           random_state=self.random_state, frac_sample_size=0.80, p1=self.p1, p2=self.p2, p3=self.p3,
+                                           d1=self.d1, d2=self.d2, d3=self.d3, robust_method=self.robust_method, alpha=self.alpha, 
+                                           epsilon=self.epsilon, n_iters=self.n_iters, fast_VG=self.fast_VG, VG_sample_size=self.VG_sample_size, 
+                                           VG_n_samples=self.VG_n_samples, verbose=self.verbose)
+       
         fast_kmedoids.fit(X=X_medoids)     
 
         fold_medoid_keys = [(fold_key, medoid_key) for fold_key in range(0, self.n_splits) for medoid_key in range(0, self.n_clusters)]
@@ -400,6 +417,7 @@ class FoldFastKmedoidsGGower :
             distGG = GGowerDist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                                 robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                 VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state) 
+           
             distGG.fit(self.X) # self.X is X used during fit, typically X_train
 
         predicted_clusters = []
@@ -410,4 +428,3 @@ class FoldFastKmedoidsGGower :
         return predicted_clusters
     
 #####################################################################################################################
-        

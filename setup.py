@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="FastKmedoids",
-    version="0.0.33",
+    version="0.0.35",
     author="Fabio Scielzo Ortiz",
     author_email="fabioscielzo98@gmail.com",
     description="FastKmedoids is a Python package to apply the clustering algorithms Fast Kmedoids and KFold Fast Kmedoids.", long_description=long_description,
