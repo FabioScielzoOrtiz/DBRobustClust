@@ -22,6 +22,8 @@ def outlier_contamination(X, col_name, prop_below=0.05, prop_above=None, sigma=2
     Returns (outputs)
     -------
     X_new: the resulting variable after the outlier contamination of `X`.
+    outlier_idx_below: the index of the below outliers.
+    outlier_idx_above: the index of the above outliers.
     """
 
     X_new = X.copy()
@@ -64,7 +66,7 @@ def outlier_contamination(X, col_name, prop_below=0.05, prop_above=None, sigma=2
         return X_new, outlier_idx_below, outlier_idx_above
 
     else:
-        print('prop_below and prop_above cannot be both None.')
+        raise ValueError('prop_below and prop_above cannot be both None.')
 
 
 #####################################################################################################################

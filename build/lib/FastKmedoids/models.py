@@ -98,7 +98,7 @@ class FastKmedoidsGGower :
         Parameters:
             X: a pandas/polars data-frame or a numpy array. Represents a predictors matrix. Is required.
             y: a pandas/polars series or a numpy array. Represents a response variable. Is not required.
-            weights: the sample weights, if exists.
+            weights: the sample weights. Only used if provided and d1 = 'robust_mahalanobis'.  
         """
         if isinstance(X, (pd.DataFrame, pl.DataFrame)):
             X = X.to_numpy()
@@ -187,7 +187,7 @@ class FastKmedoidsGGower :
 
 #####################################################################################################################
 
-class FoldFastKmedoidsGGower :
+class FoldFastKmedoidsGGower:
     """
     Implements the K-Fold Fast-K-medoids algorithm based on the Generalized Gower distance.
     """
@@ -236,7 +236,7 @@ class FoldFastKmedoidsGGower :
         Parameters:
             X: a pandas/polars data-frame or a numpy array. Represents a predictors matrix. Is required.
             y: a pandas/polars series or a numpy array. Represents a response variable. Is not required.
-            weights: the sample weights, if exists.
+            weights: the sample weights. Only used if provided and d1 = 'robust_mahalanobis'.  
         """
         
         if isinstance(X, (pd.DataFrame, pl.DataFrame)):
