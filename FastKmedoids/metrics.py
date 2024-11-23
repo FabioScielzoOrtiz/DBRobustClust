@@ -14,8 +14,8 @@ def adjusted_accuracy(y_pred, y_true):
 
     Returns (outputs)
     -------
-    best_accuracy: the value of the best accuracy.
-    best_cluster_labels: the clusters labels associated to the best accuracy.
+    adj_accuracy: the value of the best accuracy.
+    adj_cluster_labels: the clusters labels associated to the best accuracy.
     """
 
     permutations_list = list(permutations(np.unique(y_pred)))
