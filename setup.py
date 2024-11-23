@@ -8,7 +8,7 @@ setup(
     version="0.0.40",
     author="Fabio Scielzo Ortiz",
     author_email="fabioscielzo98@gmail.com",
-    description="FastKmedoids is a Python package to apply the clustering algorithms Fast Kmedoids and KFold Fast Kmedoids.", long_description=long_description,
+    description="For more information, heck out the official documentation of `FastKmedoids` at: https://fabioscielzoortiz.github.io/FastKmedoids-book/intro.html", long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/FabioScielzoOrtiz/FastKmedoids-package",  # add your project URL here
     packages=find_packages(),
