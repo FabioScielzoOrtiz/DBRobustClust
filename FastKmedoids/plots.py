@@ -182,7 +182,7 @@ def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true=None, outliers_bo
 
         for i, method in enumerate(methods):
          
-            if outliers_bool is not None:
+            if outliers_boolean is not None:
                 sns.scatterplot(x='Z1', y='Z2', hue='groups', style='outliers', data=MDS_cluster_df[method], ax=axes[i], 
                                 s=points_size, palette='bright', markers={0: 'o', 1: '^'})
             else:
