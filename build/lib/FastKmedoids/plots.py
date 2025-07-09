@@ -7,7 +7,7 @@ import seaborn as sns
 
 #####################################################################################################################
 
-def clustering_MDS_plot_one_method(X_mds, y_pred, y_true, title='', accuracy=None, time=None, figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
+def clustering_MDS_plot_one_method(X_mds, y_pred, y_true, title='', clustering_method=None, accuracy=None, time=None, figsize=(8, 5), bbox_to_anchor=(1.2, 1), 
                                    title_size=13, title_weight='bold', points_size=45, title_height=0.98, subtitles_size=12, subtitle_weight='bold',
                                    hspace=0.8, wspace=0.4, save=False, file_name=None, format='jpg', dpi=250, legend_size=9):
     """
@@ -52,15 +52,15 @@ def clustering_MDS_plot_one_method(X_mds, y_pred, y_true, title='', accuracy=Non
         sns.scatterplot(x='Z1', y='Z2', hue='cluster_labels', data=MDS_cluster_df, ax=axes[1], s=points_size, palette='bright')
         axes[0].set_title('Real groups', fontsize=subtitles_size, weight=subtitle_weight)
         if accuracy != None and time != None:
-            axes[1].set_title(f'Predicted groups (Acc:{np.round(accuracy,3)}, Time:{np.round(time,1)} secs)', fontsize=subtitles_size, weight=subtitle_weight)
+            axes[1].set_title(f'Predicted groups by\n{clustering_method}\nAcc:{np.round(accuracy,3)}, Time:{np.round(time,1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
         elif accuracy != None:
-            axes[1].set_title(f'Predicted groups (Acc:{np.round(accuracy,3)})', fontsize=subtitles_size, weight=subtitle_weight)
+            axes[1].set_title(f'Predicted groups by\n{clustering_method}\nAcc:{np.round(accuracy,3)}', fontsize=subtitles_size, weight=subtitle_weight)
         elif time != None:
-            axes[1].set_title(f'Predicted groups (Time:{np.round(time,1)} secs)', fontsize=subtitles_size, weight=subtitle_weight)
+            axes[1].set_title(f'Predicted groups by\n{clustering_method}\nTime:{np.round(time,1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
         else:
-            axes[1].set_title(f'Predicted groups', fontsize=11)
-        axes[0].legend(title='Y', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
-        axes[1].legend(title='Cluster\nlabels',bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
+            axes[1].set_title(f'Predicted groups',  fontsize=subtitles_size, weight=subtitle_weight)
+        axes[0].legend(title='Y', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size, title_fontsize=legend_size)
+        axes[1].legend(title='Cluster labels',bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size, title_fontsize=legend_size)
         plt.subplots_adjust(hspace=hspace, wspace=wspace) 
         plt.suptitle(title, fontsize=title_size, y=title_height, weight=title_weight, color='black')
 
@@ -69,7 +69,7 @@ def clustering_MDS_plot_one_method(X_mds, y_pred, y_true, title='', accuracy=Non
         fig, axes = plt.subplots(figsize=figsize)
         ax = sns.scatterplot(x='Z1', y='Z2', hue='cluster_labels', data=MDS_cluster_df, s=points_size, palette='bright')
         ax.set_title(title, fontsize=title_size, y=title_height, weight=title_weight, color='black')
-        ax.legend(title='Cluster\nlabels', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
+        ax.legend(title='Cluster labels', bbox_to_anchor=bbox_to_anchor, loc='upper right', fontsize=legend_size)
  
     if save == True:
         fig.savefig(file_name, format=format, dpi=dpi, bbox_inches="tight", pad_inches=0.2)
@@ -158,13 +158,13 @@ def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true=None, outliers_bo
                 sns.scatterplot(x='Z1', y='Z2', hue='groups', data=MDS_cluster_df[method], ax=axes[i+1], s=points_size, palette='bright')                
 
             if accuracy != None and time != None:
-                axes[i+1].set_title(f'Predicted groups by {method}\n Acc:{np.round(accuracy[method],3)} - Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
+                axes[i+1].set_title(f'Predicted groups by\n{method}\n Acc:{np.round(accuracy[method],3)} - Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
             elif accuracy != None:
-                axes[i+1].set_title(f'Predicted groups by {method}\n Acc:{np.round(accuracy[method],3)}', fontsize=subtitles_size, weight=subtitle_weight)
+                axes[i+1].set_title(f'Predicted groups by\n{method}\n Acc:{np.round(accuracy[method],3)}', fontsize=subtitles_size, weight=subtitle_weight)
             elif time != None:
-                axes[i+1].set_title(f'Predicted groups by {method}\n Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
+                axes[i+1].set_title(f'Predicted groups by\n{method}\n Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
             else:
-                axes[i+1].set_title(f'Predicted groups by {method}\n ', fontsize=11)
+                axes[i+1].set_title(f'Predicted groups by\n{method}\n ', fontsize=11)
             
             axes[i+1].legend().remove()
         
@@ -189,13 +189,13 @@ def clustering_MDS_plot_multiple_methods(X_mds, y_pred, y_true=None, outliers_bo
                 sns.scatterplot(x='Z1', y='Z2', hue='groups', data=MDS_cluster_df[method], ax=axes[i], s=points_size, palette='bright')                
 
             if accuracy != None and time != None:
-                axes[i].set_title(f'Predicted groups by {method}\n Acc:{np.round(accuracy[method],3)} - Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
+                axes[i].set_title(f'Predicted groups by\n{method}\n Acc:{np.round(accuracy[method],3)} - Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
             elif accuracy != None:
-                axes[i].set_title(f'Predicted groups by {method}\n Acc:{np.round(accuracy[method],3)}', fontsize=subtitles_size, weight=subtitle_weight)
+                axes[i].set_title(f'Predicted groups by\n{method}\n Acc:{np.round(accuracy[method],3)}', fontsize=subtitles_size, weight=subtitle_weight)
             elif time != None:
-                axes[i].set_title(f'Predicted groups by {method}\n Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
+                axes[i].set_title(f'Predicted groups by\n{method}\n Time:{np.round(time[method],1)} secs', fontsize=subtitles_size, weight=subtitle_weight)
             else:
-                axes[i].set_title(f'Predicted groups by {method}\n ', fontsize=11)
+                axes[i].set_title(f'Predicted groups by\n{method}\n ', fontsize=11)
             
             axes[i].legend().remove()
 
