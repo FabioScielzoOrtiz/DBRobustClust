@@ -4,13 +4,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="FastKmedoids",
-    version="0.0.1",
+    name="DBRobustClust",
+    version="0.0.2",
     author="Fabio Scielzo Ortiz",
     author_email="fabio.scielzoortiz@gmail.com",
-    description="For more information, check out the official documentation of `FastKmedoids` at: https://fabioscielzoortiz.github.io/FastKmedoids-docu/intro.html", long_description=long_description,
+    description="For more information, check out the official documentation of `DBRobustClust` at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html", long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/FabioScielzoOrtiz/FastKmedoids-package",  
+    url="https://github.com/FabioScielzoOrtiz/DBRobustClust-package",  
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
