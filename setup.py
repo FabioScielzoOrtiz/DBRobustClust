@@ -4,13 +4,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="DBRobustClust",
+    name="db-robust-clust",
     version="0.1.0",
     author="Fabio Scielzo Ortiz",
     author_email="fabio.scielzoortiz@gmail.com",
-    description="For more information, check out the official documentation of DBRobustClust at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html", long_description=long_description,
+    description="For more information, check out the official documentation of db_robust_clust.",
+    long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/FabioScielzoOrtiz/DBRobustClust-package",  
+    url="https://github.com/FabioScielzoOrtiz/db_robust_clust",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

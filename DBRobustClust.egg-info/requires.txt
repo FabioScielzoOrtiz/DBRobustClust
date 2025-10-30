@@ -3,6 +3,7 @@ numpy<=1.26.4
 PyDistances
 pandas
 scikit-learn-extra
+tqdm
 setuptools
 pyarrow
 matplotlib

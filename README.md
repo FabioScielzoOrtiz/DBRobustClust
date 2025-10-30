@@ -1,4 +1,4 @@
-# DBRobustClust
+# db_robust_clust
 
-For more information, check out the official documentation of `DBRobustClust` at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html
+For more information, check out the official documentation of `db_robust_clust` at: https://fabioscielzoortiz.github.io/db_robust_clust-docu/intro.html
 

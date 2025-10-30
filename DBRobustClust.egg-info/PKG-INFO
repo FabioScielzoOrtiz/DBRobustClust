@@ -1,8 +1,8 @@
 Metadata-Version: 2.4
-Name: DBRobustClust
-Version: 0.0.2
-Summary: For more information, check out the official documentation of `DBRobustClust` at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html
-Home-page: https://github.com/FabioScielzoOrtiz/DBRobustClust-package
+Name: db_robust_clust
+Version: 0.1.0
+Summary: For more information, check out the official documentation of db_robust_clust at: https://fabioscielzoortiz.github.io/db_robust_clust-docu/intro.html
+Home-page: https://github.com/FabioScielzoOrtiz/db_robust_clust-package
 Author: Fabio Scielzo Ortiz
 Author-email: fabio.scielzoortiz@gmail.com
 Classifier: Programming Language :: Python :: 3
@@ -16,6 +16,7 @@ Requires-Dist: numpy<=1.26.4
 Requires-Dist: PyDistances
 Requires-Dist: pandas
 Requires-Dist: scikit-learn-extra
+Requires-Dist: tqdm
 Requires-Dist: setuptools
 Requires-Dist: pyarrow
 Requires-Dist: matplotlib
@@ -31,7 +32,7 @@ Dynamic: requires-dist
 Dynamic: requires-python
 Dynamic: summary
 
-# DBRobustClust
+# db_robust_clust
 
-For more information, check out the official documentation of `DBRobustClust` at: https://fabioscielzoortiz.github.io/DBRobustClust-book/intro.html
+For more information, check out the official documentation of `db_robust_clust` at: https://fabioscielzoortiz.github.io/db_robust_clust-docu/intro.html
 
