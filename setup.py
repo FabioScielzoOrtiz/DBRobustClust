@@ -8,7 +8,7 @@ setup(
     version="0.0.2",
     author="Fabio Scielzo Ortiz",
     author_email="fabio.scielzoortiz@gmail.com",
-    description="For more information, check out the official documentation of `DBRobustClust` at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html", long_description=long_description,
+    description="For more information, check out the official documentation of DBRobustClust at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html", long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/FabioScielzoOrtiz/DBRobustClust-package",  
     packages=find_packages(),
@@ -17,6 +17,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=['polars','numpy<=1.26.4', 'PyDistances', 'pandas', 'scikit-learn-extra', 'setuptools', 'pyarrow', 'matplotlib', 'seaborn'],
+    install_requires=['polars','numpy<=1.26.4', 'PyDistances', 'pandas', 'scikit-learn-extra', 'tqdm', 'setuptools', 'pyarrow', 'matplotlib', 'seaborn'],
     python_requires=">=3.7"
 )
