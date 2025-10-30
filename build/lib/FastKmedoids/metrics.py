@@ -1,32 +1,44 @@
 import numpy as np
 from itertools import permutations
+from sklearn.metrics import accuracy_score
 
 #####################################################################################################################
 
-def adjusted_accuracy(y_pred, y_true):
+def adjusted_score(y_pred, y_true, metric=accuracy_score):
     """
-    Computes the adjusted accuracy as the maximum accuracy  of the ones obtained for all the possible permutations of the cluster labels (`y_pred`).
+    Computes the adjusted score (accuracy, balanced accuracy, etc.) as the maximum
+    score obtained across all possible permutations of the cluster labels (`y_pred`).
 
-    Parameters (inputs)
+    Parameters
     ----------
-    y_pred: a numpy array with the predictions of the response.
-    y_true: a numpy array with the true values of the response.
+    y_pred : numpy.ndarray
+        Predicted cluster labels.
+    y_true : numpy.ndarray
+        True class labels.
+    metric : callable, default=accuracy_score
+        Function to compute the metric. Must accept (y_true, y_pred) and return a float.
 
-    Returns (outputs)
+    Returns
     -------
-    adj_accuracy: the value of the best accuracy.
-    adj_cluster_labels: the clusters labels associated to the best accuracy.
+    adj_score : float
+        The best score obtained across all permutations.
+    adj_cluster_labels : numpy.ndarray
+        The cluster labels permuted according to the best permutation.
     """
 
     permutations_list = list(permutations(np.unique(y_pred)))
-    accuracy, permuted_cluster_labels = [], {}
+    scores, permuted_cluster_labels = [], {}
+
     for per in permutations_list:
         permutation_dict = dict(zip(np.unique(y_pred), per))
         permuted_cluster_labels[per] = np.array([permutation_dict[x] for x in y_pred])
-        accuracy.append(np.mean(permuted_cluster_labels[per] == y_true))
-    accuracy = np.array(accuracy)
-    best_permutation = permutations_list[np.argmax(accuracy)]
+        scores.append(metric(y_true=y_true, y_pred=permuted_cluster_labels[per]))
+
+    scores = np.array(scores)
+    best_permutation = permutations_list[np.argmax(scores)]
     adj_cluster_labels = permuted_cluster_labels[best_permutation]
-    adj_accuracy = np.max(accuracy)
-  
-    return adj_accuracy, adj_cluster_labels
+    adj_score = np.max(scores)
+
+    return adj_score, adj_cluster_labels
+
+#####################################################################################################################
