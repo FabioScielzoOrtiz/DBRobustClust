@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="DBRobustClust",
-    version="0.0.2",
+    version="0.1.0",
     author="Fabio Scielzo Ortiz",
     author_email="fabio.scielzoortiz@gmail.com",
     description="For more information, check out the official documentation of DBRobustClust at: https://fabioscielzoortiz.github.io/DBRobustClust-docu/intro.html", long_description=long_description,
