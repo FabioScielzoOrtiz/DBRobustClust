@@ -167,16 +167,15 @@ class FastKmedoidsGGower :
             X: a pandas/polars data-frame or a numpy array. Represents a predictors matrix. Is required.
         """
 
-        if self.y is not None: # remove y from the medoids, since in predict method X doesn't contain y.
-          
+        if self.y: # remove y from the medoids, since in predict method X doesn't contain y.
             for j in range(self.n_clusters):
                 self.medoids_[j] = np.delete(self.medoids_[j], self.y_idx)
 
-            distGG = GGowerDist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+        distGG = GGowerDist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                                 robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                 VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state) 
             
-            distGG.fit(self.X) # self.X is X used during fit, typically X_train or concat_X_y(X_train,y_train) if y is not None.
+        distGG.fit(self.X) # self.X is X used during fit method, not necessarily the X parameter passed to the predict method.
 
         predicted_clusters = []
         for i in range(0, len(X)):
@@ -308,11 +307,11 @@ class FoldFastKmedoidsGGower:
             for j in range(self.n_clusters):
                 self.medoids_[j] = np.delete(self.medoids_[j], self.y_idx)
 
-            distGG = GGowerDist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
+        distGG = GGowerDist(p1=self.p1_init, p2=self.p2_init, p3=self.p3_init, d1=self.d1, d2=self.d2, d3=self.d3, q=self.q,
                                 robust_method=self.robust_method, alpha=self.alpha, epsilon=self.epsilon, n_iters=self.n_iters,
                                 VG_sample_size=self.VG_sample_size, VG_n_samples=self.VG_n_samples, random_state=self.random_state) 
            
-            distGG.fit(self.X) # self.X is X used during fit, typically X_train
+        distGG.fit(self.X) # self.X is X used during fit method, not necessarily the X parameter passed to the predict method
 
         predicted_clusters = []
         for i in range(0, len(X)):

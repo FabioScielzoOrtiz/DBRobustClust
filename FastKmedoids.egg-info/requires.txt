@@ -1,2 +1,9 @@
 polars
-numpy
+numpy<=1.26.4
+PyDistances
+pandas
+scikit-learn-extra
+setuptools
+pyarrow
+matplotlib
+seaborn

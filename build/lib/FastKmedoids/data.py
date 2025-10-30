@@ -1,8 +1,8 @@
 import numpy as np
 import polars as pl
-from PyMachineLearning.preprocessing import Encoder, Imputer
-from sklearn.pipeline import Pipeline
-from sklearn.compose import ColumnTransformer
+#from PyMachineLearning.preprocessing import Encoder, Imputer
+#from sklearn.pipeline import Pipeline
+#from sklearn.compose import ColumnTransformer
 
 #####################################################################################################################
 
@@ -71,6 +71,7 @@ def outlier_contamination(X, col_name, prop_below=0.05, prop_above=None, sigma=2
 
 #####################################################################################################################
 
+'''
 def sort_predictors_for_GGower(df, quant_predictors, cat_predictors):
     """
     Given a data-frame th function return the names of its categorical variables sorted according to (binary, multi-class) 
@@ -125,3 +126,4 @@ def sort_predictors_for_GGower(df, quant_predictors, cat_predictors):
     p3 = len(multiclass_predictors)
 
     return cat_predictors_sorted, p1, p2, p3
+'''
