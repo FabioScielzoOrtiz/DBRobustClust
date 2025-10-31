@@ -1,8 +1,8 @@
 Metadata-Version: 2.4
-Name: db_robust_clust
-Version: 0.1.0
-Summary: For more information, check out the official documentation of db_robust_clust at: https://fabioscielzoortiz.github.io/db_robust_clust-docu/intro.html
-Home-page: https://github.com/FabioScielzoOrtiz/db_robust_clust-package
+Name: db-robust-clust
+Version: 0.1.2
+Summary: For more information, check out the official documentation of db_robust_clust.
+Home-page: https://github.com/FabioScielzoOrtiz/db_robust_clust
 Author: Fabio Scielzo Ortiz
 Author-email: fabio.scielzoortiz@gmail.com
 Classifier: Programming Language :: Python :: 3
@@ -32,7 +32,7 @@ Dynamic: requires-dist
 Dynamic: requires-python
 Dynamic: summary
 
-# db_robust_clust
+# db-robust-clust
 
 For more information, check out the official documentation of `db_robust_clust` at: https://fabioscielzoortiz.github.io/db_robust_clust-docu/intro.html
 
